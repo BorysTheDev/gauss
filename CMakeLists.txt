@@ -7,7 +7,7 @@ project (${PROJECT})
 
 set(GAUSS ./main.cpp)
 
-add_definitions (-Wall -pedantic -std=gnu++11)
+add_definitions (-Wall -pedantic -std=gnu++11 -O2)
 
 set (HEADERS 
   ./io.h

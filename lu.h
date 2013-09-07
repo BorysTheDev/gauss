@@ -8,13 +8,18 @@ void simpleLU(Matrix<N>& luMatrix)
   for (size_t i = 0; i < luMatrix.height(); i++) {
     for (size_t k = 0; k < i; k++)
       for (size_t j = i; j < luMatrix.width(); j++)
-        luMatrix[i][j] -= luMatrix[i][k] * luMatrix[k][j];
+    luMatrix(i, j) -= luMatrix(i, k) * luMatrix(k, j);
 
     for (size_t j = i + 1; j < luMatrix.width(); j++) {
       N sum = 0.0;
       for (size_t k = 0; k < i; k++)
-        sum += luMatrix[j][k] * luMatrix[k][i];
-      luMatrix[j][i] = (luMatrix[j][i] - sum) / luMatrix[i][i];
+      sum += luMatrix(j, k) * luMatrix(k, i);
+      luMatrix(j, i) = (luMatrix(j, i) - sum) / luMatrix(i, i);
+/*
+ *  sum += luMatrix(j, k) * luMatrix(k, i);
+      luMatrix(i, j) -= luMatrix(i, k) * luMatrix(k, j);
+      luMatrix(i, j) = (luMatrix(j, i) - sum) / luMatrix(i, i);
+ */
     }
   }
 }
@@ -31,8 +36,9 @@ void blockLU(Matrix<N>& luMatrix, const int bs)
   std::function<int(int)> rBorder = [&](int blockn) {
     return (blockn + 1) * bs > size ? size : (blockn + 1) * bs;
   };
-  // middle blocks
+
   for (int i = 0; i < bn; i++) {
+    // middle blocks
     //  full U and L part
     for (int k = 0; k < i; k++)
       for (int ii = lBorder(i); ii < rBorder(i); ii++)
@@ -56,31 +62,40 @@ void blockLU(Matrix<N>& luMatrix, const int bs)
     for (int j = i + 1; j < bn; j++) {
       for (int k = 0; k < i; k++) {
         for (int ii = lBorder(i); ii < rBorder(i); ii++)
-          for (int ik = lBorder(k); ik < rBorder(k); ik++)
-            for (int ij = lBorder(j); ij < rBorder(j); ij++)
+          for (int ik = lBorder(k); ik < rBorder(k); ik++){
+            int rb = rBorder(j);
+            for (int ij = lBorder(j); ij < rb; ij++)
               luMatrix(ii, ij) -= luMatrix(ii, ik) * luMatrix(ik, ij);
+          }
       }
       // U part last block
       for (int ii = lBorder(i); ii < rBorder(i); ii++)
-        for (int ik = lBorder(i); ik < ii; ik++)
-          for (int ij = lBorder(j); ij < rBorder(j); ij++)
+        for (int ik = lBorder(i); ik < ii; ik++){
+          int rb = rBorder(j);
+          for (int ij = lBorder(j); ij < rb; ij++)
             luMatrix(ii, ij) -= luMatrix(ii, ik) * luMatrix(ik, ij);
+        }
     }
 
-
+    //L blocks
     for (int j = i + 1; j < bn; j++) {
       for (int k = 0; k < i; k++) {
         for (int ii = lBorder(i); ii < rBorder(i); ii++)
-          for (int ik = lBorder(k); ik < rBorder(k); ik++)
-            for (int ij = lBorder(j); ij < rBorder(j); ij++)
+          for (int ik = lBorder(k); ik < rBorder(k); ik++){
+            int rb = rBorder(j);
+            for (int ij = lBorder(j); ij < rb; ij++)
               luMatrix(ij, ii) -= luMatrix(ij, ik)
                   * luMatrix(ik, ii);
+          }
       }
+      // L part last block
       for (int ii = lBorder(i); ii < rBorder(i); ii++) {
-        for (int ik = lBorder(i); ik < ii; ik++)
-          for (int ij = lBorder(j); ij < rBorder(j); ij++)
+        for (int ik = lBorder(i); ik < ii; ik++){
+          int rb = rBorder(j);
+          for (int ij = lBorder(j); ij < rb; ij++)
             luMatrix(ij, ii) -= luMatrix(ij, ik)
                 * luMatrix(ik, ii);
+        }
         for (int ij = lBorder(j); ij < rBorder(j); ij++)
           luMatrix(ij, ii) /= luMatrix(ii, ii);
       }

@@ -10,7 +10,7 @@ using namespace std;
 
 int main(){
 
-	int matrixSize = 1231;
+	int matrixSize = 2231;
 	Matrix<double> luMatrix(matrixSize);
 	generateMatrix(luMatrix);
 	Matrix<double> luMatrix1(luMatrix);
@@ -21,16 +21,16 @@ int main(){
 
 	float fTimeStart;
 	fTimeStart = clock()/(float)CLOCKS_PER_SEC; 
-    blockLU(luMatrix, 20);
-    simpleLU(luMatrix1);
+    //blockLU(luMatrix, 100);
+    simpleLU(luMatrix);
 	cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
 
 	double* x2 = reverseStroke<double>(luMatrix, f, matrixSize);
-	writeVector("./gauss_scheme/result.txt", x2, matrixSize);
-	writeMatrix("./gauss_scheme/test.txt", luMatrix.data(),
-	    matrixSize);
-	writeMatrix("./gauss_scheme/test1.txt", luMatrix1.data(),
-	      matrixSize);
+	writeVector("./gauss/result.txt", x2, matrixSize);
+	//writeMatrix("./gauss_scheme/test.txt", luMatrix.data(),
+	//    matrixSize);
+	//writeMatrix("./gauss_scheme/test1.txt", luMatrix1.data(),
+	//     matrixSize);
 
 
 	delete[] x;

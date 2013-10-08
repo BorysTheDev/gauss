@@ -14,7 +14,7 @@ set (HEADERS
   ./local_synchronization.h
   ./lu.h
   ./matrix_generator.h
- 
+  ./gauss.h
  ./synchronization.h
  ./threads.h
 )

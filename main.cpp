@@ -2,15 +2,16 @@
 #include "matrix_generator.h"
 #include <time.h>  
 #include "matrix.h"
-#include "lu.h"
+
 #include "io.h"
+#include "gauss.h"
 
 using namespace std;
 
 
 int main(){
 
-	int matrixSize = 2231;
+	int matrixSize = 1999;
 	Matrix<double> luMatrix(matrixSize);
 	generateMatrix(luMatrix);
 	Matrix<double> luMatrix1(luMatrix);
@@ -22,10 +23,11 @@ int main(){
 	float fTimeStart;
 	fTimeStart = clock()/(float)CLOCKS_PER_SEC; 
     //blockLU(luMatrix, 100);
-    simpleLU(luMatrix);
+	gaussBlockScheme(luMatrix, f, matrixSize, 100);
+	auto x2 = f;
 	cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
 
-	double* x2 = reverseStroke<double>(luMatrix, f, matrixSize);
+
 	writeVector("./gauss/result.txt", x2, matrixSize);
 	//writeMatrix("./gauss_scheme/test.txt", luMatrix.data(),
 	//    matrixSize);
@@ -34,7 +36,6 @@ int main(){
 
 
 	delete[] x;
-  delete[] x2;
 	delete[] f;
 	cout << "end";
 	return 0;

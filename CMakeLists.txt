@@ -11,12 +11,11 @@ add_definitions (-Wall -pedantic -std=gnu++11 -O2)
 
 set (HEADERS 
   ./io.h
-  ./local_synchronization.h
   ./lu.h
   ./matrix_generator.h
   ./gauss.h
  ./synchronization.h
- ./threads.h
+ ./mtlu.h
 )
 set (SOURCES ./main.cpp)
 

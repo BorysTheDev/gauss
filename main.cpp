@@ -5,17 +5,17 @@
 
 #include "io.h"
 #include "gauss.h"
-#include "threads.h"
-#include "mtlu.h"
+
 
 
 
 int main(){
 
-	int matrixSize = 3000;
-	Matrix<double> luMatrix(matrixSize);
-	generateMatrix(luMatrix);
-	Matrix<double> luMatrix1(luMatrix);
+	int matrixSize = 2000;
+	double** luMatrix = new double*[matrixSize];
+	for (int i = 0; i < matrixSize; i++)
+	  luMatrix[i] = new double[matrixSize];
+	generateMatrix(luMatrix, matrixSize);
 
 	double* x = new double[matrixSize];
 	generateX(x, matrixSize);
@@ -23,13 +23,8 @@ int main(){
 
 	float fTimeStart;
 	fTimeStart = clock()/(float)CLOCKS_PER_SEC; 
-    //blockLU(luMatrix, 100);
 
-
-
-	MTBlockLU<Matrix<double> > ntb(luMatrix, matrixSize, 100);
-	ntb.start(1);
-	reverseStroke(luMatrix, f, matrixSize);
+	gaussMTBlockScheme(luMatrix, f, matrixSize, 2, 30);
 	/*cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
   fTimeStart = clock()/(float)CLOCKS_PER_SEC;
 	blockLU(luMatrix1, matrixSize,100);

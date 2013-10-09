@@ -1,9 +1,11 @@
 #ifndef SYNCHRONIZATION
 #define SYNCHRONIZATION
 #include <thread>
+#include <mutex>
 #include <string>
+#include <condition_variable>
 using namespace std;
-/*
+
 class Synchronization{
 public:
 	// unprocessed elements are got
@@ -27,7 +29,7 @@ public:
 	void debugOut(string str){ lock lk(mutexio); cout << str << endl;}
 
 protected:
-	typedef lock_guard lock;
+	typedef unique_lock<std::mutex> lock;
 
 	volatile int unprocessedColumnU;
 	volatile int unprocessedRowL;
@@ -42,9 +44,9 @@ protected:
 	// debug mutex
 	mutex mutexio;
 	// conditions
-	condition ReadyRowL;
-	condition ReadyCollumnU;
-	condition ReadyMiddle;
+	condition_variable ReadyRowL;
+	condition_variable ReadyCollumnU;
+	condition_variable ReadyMiddle;
 };
 
 Synchronization::Synchronization(){
@@ -123,5 +125,5 @@ int Synchronization::setProcessedMiddle(int n){
 	ReadyMiddle.notify_all();
 	return temp;
 }
-*/
+
 #endif /*SYNCHRONIZATION*/

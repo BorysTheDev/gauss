@@ -1,6 +1,7 @@
 #ifndef GAUSS_H_
 #define GAUSS_H_
 #include "lu.h"
+#include "reverse_stroke.h"
 
 // faster but not determined
 template<typename Matrix, typename Vector>

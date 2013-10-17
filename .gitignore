@@ -33,3 +33,4 @@ Makefile
 *.sln
 Debug/
 gauss_scheme.dir/
+

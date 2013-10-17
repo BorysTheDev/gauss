@@ -26,3 +26,10 @@ CMakeFiles/
 cmake_install.cmake
 CMakeCache.txt
 Makefile
+
+#visual studio files
+*.vcxproj
+*.vcxproj.filters
+*.sln
+Debug/
+gauss_scheme.dir/

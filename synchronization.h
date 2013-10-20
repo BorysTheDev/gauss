@@ -2,23 +2,22 @@
 #define SYNCHRONIZATION
 #include <thread>
 #include <mutex>
-#include <string>
 #include <condition_variable>
-using namespace std;
+#include <atomic>
 
 class Synchronization{
 public:
 	// unprocessed elements are got
-	virtual int getUnprocessedColumnU();
-	virtual int getUnprocessedRowL();
+	virtual int getUnprocessedColumnU() { return unprocessedColumnU++; }
+	virtual int getUnprocessedRowL()    { return unprocessedRowL++; }
 	// synchronization lock
 	virtual bool lockL(int n, int pos); // n is required middle element
 	virtual bool lockU(int n, int pos); // n is required middle element
 	virtual bool lockMiddle(int n);		// n is required L and U elements
 	// synchronization unLock
-	virtual void unLockL(int n){}
-	virtual void unLockU(int n){}
-	virtual void unLockMiddle(int n){}
+	virtual void unLockL(int n) {}
+	virtual void unLockU(int n) {}
+	virtual void unLockMiddle(int n) {}
 	// processed elements
 	virtual int setProcessedColumnU(int n);
 	virtual int setProcessedRowL(int n);
@@ -26,27 +25,23 @@ public:
 	//costructor
 	Synchronization();
 	// debug function
-	void debugOut(string str){ lock lk(mutexio); cout << str << endl;}
+	//void debugOut(string str){ lock lk(mutexio); cout << str << endl;}
 
 protected:
-	typedef unique_lock<std::mutex> lock;
+	typedef std::unique_lock<std::mutex> lock;
 
-	volatile int unprocessedColumnU;
-	volatile int unprocessedRowL;
-	volatile int processedColumnU;
-	volatile int processedRowL;
-	volatile int processedMiddle;
+	std::atomic_int unprocessedColumnU;
+	std::atomic_int unprocessedRowL;
+	std::atomic_int processedColumnU;
+	std::atomic_int processedRowL;
+	std::atomic_int processedMiddle;
 	// mutexs
-	mutex synchMiddleMonitor;
-	mutex synchLUMonitor;
-	mutex mutexL;
-	mutex mutexU;
-	// debug mutex
-	mutex mutexio;
+	std::mutex synch;
+	//std::mutex mutexio;
 	// conditions
-	condition_variable ReadyRowL;
-	condition_variable ReadyCollumnU;
-	condition_variable ReadyMiddle;
+	std::condition_variable ReadyRowL;
+	std::condition_variable ReadyCollumnU;
+	std::condition_variable ReadyMiddle;
 };
 
 Synchronization::Synchronization(){
@@ -58,70 +53,49 @@ Synchronization::Synchronization(){
 	processedMiddle = -1;
 }
 
-bool Synchronization::lockL(int n, int pos){
-	if(n > processedMiddle){
-		lock lk(synchLUMonitor);
-		while (n > processedMiddle)
-			ReadyMiddle.wait(lk);
-	}
-	return true;
+bool Synchronization::lockL(int n, int pos)
+{
+  if (n > processedMiddle) {
+    lock lk(synch);
+    while (n > processedMiddle)
+      ReadyMiddle.wait(lk);
+  }
+  return true;
 }
 
 bool Synchronization::lockU(int n, int pos){
-	if(n > processedMiddle){
-		lock lk(synchLUMonitor);
-		while (n > processedMiddle)
-			ReadyMiddle.wait(lk);
-	}
-	return true;
+  if (n > processedMiddle) {
+    lock lk(synch);
+    while (n > processedMiddle)
+      ReadyMiddle.wait(lk);
+  }
+  return true;
 }
 
 bool Synchronization::lockMiddle(int n){
-	if(n > processedColumnU){
-		lock lk(synchMiddleMonitor);
-		while (n > processedColumnU)
-			ReadyCollumnU.wait(lk);
-	}
-	if(n > processedRowL){
-		lock lk(synchMiddleMonitor);
-		while (n > processedRowL)
-			ReadyRowL.wait(lk);
-	}
-	return true;
+  if ((n > processedColumnU) || (n > processedRowL)) {
+    lock lk(synch);
+    while (n > processedColumnU)
+      ReadyCollumnU.wait(lk);
+    while (n > processedRowL)
+      ReadyRowL.wait(lk);
+  }
+  return true;
 }
 
-int Synchronization::getUnprocessedColumnU(){
-	lock scoped_lock(mutexU);
-	int temp = unprocessedColumnU;
-	unprocessedColumnU++;
-	return temp;
-}
-
-int Synchronization::getUnprocessedRowL(){
-	lock scoped_lock(mutexL);
-	int temp = unprocessedRowL;
-	unprocessedRowL++;
-	return temp;
-}
 
 int Synchronization::setProcessedColumnU(int n){
-	lock lk(synchMiddleMonitor);
-	int temp = processedColumnU;
-	processedColumnU = n;
+	int temp = processedColumnU.exchange(n);
 	ReadyCollumnU.notify_all();
 	return temp;
 }
 int Synchronization::setProcessedRowL(int n){
-	lock lk(synchMiddleMonitor);
-	int temp = processedRowL;
-	processedRowL = n;
+	int temp = processedRowL.exchange(n);
 	ReadyRowL.notify_all();
 	return temp;
 }
 int Synchronization::setProcessedMiddle(int n){
-	lock lk(synchLUMonitor);
-	int temp = processedMiddle;
-	processedMiddle = n;
+	int temp = processedMiddle.exchange(n);;
 	ReadyMiddle.notify_all();
 	return temp;
 }

@@ -11,7 +11,7 @@
 
 int main(){
 
-	int matrixSize = 2000;
+	int matrixSize = 1000;
 	double** luMatrix = new double*[matrixSize];
 	for (int i = 0; i < matrixSize; i++)
 	  luMatrix[i] = new double[matrixSize];
@@ -27,8 +27,7 @@ int main(){
 	gaussMTBlockScheme(luMatrix, f, matrixSize, 2, 30);
 	/*cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
   fTimeStart = clock()/(float)CLOCKS_PER_SEC;
-	blockLU(luMatrix1, matrixSize,100);
-	reverseStroke(luMatrix, f, matrixSize);*/
+  gaussScheme(luMatrix, f, matrixSize);*/
 
 	auto x2 = f;
 	cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;

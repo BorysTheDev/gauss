@@ -8,13 +8,13 @@ void simpleLU(Matrix& luMatrix, const int size)
   for (size_t i = 0; i < size; i++) {
     for (size_t k = 0; k < i; k++)
       for (size_t j = i; j < size; j++)
-        luMatrix(i, j) -= luMatrix(i, k) * luMatrix(k, j);
+        luMatrix[i][j] -= luMatrix[i][k] * luMatrix[k][j];
 
     for (size_t j = i + 1; j < size; j++) {
       decltype(luMatrix[0][0] + 0) sum = 0;
       for (size_t k = 0; k < i; k++)
-        sum += luMatrix(j, k) * luMatrix(k, i);
-      luMatrix(j, i) = (luMatrix(j, i) - sum) / luMatrix(i, i);
+        sum += luMatrix[j][k] * luMatrix[k][i];
+      luMatrix[j][i] = (luMatrix[j][i] - sum) / luMatrix[i][i];
     }
   }
 }

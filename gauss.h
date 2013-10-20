@@ -26,7 +26,7 @@ template<typename Matrix, typename Vector>
 void gaussMTBlockScheme(Matrix& a, Vector& b, const int size,
     const int threads, const int blockSize)
 {
-  MTBlockLU<double**> mtb(a, size, blockSize);
+  MTBlockLU<Matrix> mtb(a, size, blockSize);
   mtb.start(threads);
   reverseStroke(a, b, size);
 }

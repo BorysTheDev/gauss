@@ -36,14 +36,14 @@ private:
 template<class Matrix>
 void MTBlockLU<Matrix>::start(int nThreads)
 {
-  std::list<std::thread*> threads;
+  std::list<std::thread> threads;
   for(int i = 0; i < nThreads; i++) {
-    threads.push_back(new std::thread(&MTBlockLU<Matrix>::taskU, this));
-    threads.push_back(new std::thread(&MTBlockLU<Matrix>::taskL, this));
+    threads.push_back(std::thread(&MTBlockLU<Matrix>::taskU, this));
+    threads.push_back(std::thread(&MTBlockLU<Matrix>::taskL, this));
   }
     taskM();
   for (auto& t : threads) {
-    t->join();
+    t.join();
   }
 }
 

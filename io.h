@@ -15,13 +15,14 @@ void writeVector(string fileName, double* vector, int size) {
 	fout.close();
 }
 
-void writeMatrix(string fileName, double** matrix, int size) {
+template <class T>
+void writeMatrix(string fileName, T matrix, int size) {
 	ofstream fout(fileName);
 	fout <<size<< endl;
 	fout.setf(ios_base::scientific);
 	for (int i = 0; i <size; i++) {
 		for (int j = 0; j < size; j++)
-			fout << abs(matrix[i][j]) << " ";
+			fout << matrix[i][j] << " ";
 		fout << endl;
 	}
 	fout.flush();

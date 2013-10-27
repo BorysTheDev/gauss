@@ -8,7 +8,7 @@ project (${PROJECT})
 set(GAUSS ./main.cpp)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-add_definitions (-Wall -pedantic -std=gnu++11 -O2)
+  add_definitions (-Wall -pedantic -std=gnu++11 -O2)
 endif()
 
 set (HEADERS 
@@ -26,4 +26,6 @@ source_group ("Source Files" FILES ${SOURCES})
 
 add_executable(${PROJECT} ${HEADERS} ${SOURCES})
 
-#target_link_libraries(${PROJECT} pthread)
+if(CMAKE_COMPILER_IS_GNUCC)
+  target_link_libraries(${PROJECT} pthread)
+endif()

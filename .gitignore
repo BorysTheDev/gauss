@@ -17,7 +17,7 @@
 *.exe
 *.bat
 
-EPol
+gauss_scheme
 
 CMakeFiles/
 .cproject

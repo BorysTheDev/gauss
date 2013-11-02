@@ -1,7 +1,6 @@
 #include <iostream>
 #include "matrix_generator.h"
 #include <time.h>  
-#include "matrix.h"
 
 #include "io.h"
 #include "gauss.h"

@@ -1,4 +1,5 @@
 #include <functional>
+#include <immintrin.h>
 
 //faster but not determined
 //Matrix size must be >=1
@@ -55,11 +56,25 @@ void blockLU(Matrix& luMatrix, const int size, const int bs)
 
     //U blocks
     for (int j = i + 1; j < bn; j++) {
+      __m256d ymm0_ii_ik;
+      __m256d ymm1_ii_ij;
+      __m256d ymm2_ik_ij;
       for (int k = 0; k < i; k++)
         for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++)
           for (int ik = lBorder(k), rbk = rBorder(k); ik < rbk; ik++)
-            for (int ij = lBorder(j), rbj = rBorder(j); ij < rbj; ij++)
-              luMatrix[ii][ij] -= luMatrix[ii][ik] * luMatrix[ik][ij];
+          {
+            ymm0_ii_ik = _mm256_broadcast_sd( &luMatrix[ii][ik] );
+            for (int ij = lBorder(j), rbj = rBorder(j); ij < rbj; ij+=4)
+            {
+                ymm1_ii_ij = _mm256_loadu_pd( &luMatrix[ii][ij] );
+                ymm2_ik_ij = _mm256_loadu_pd( &luMatrix[ik][ij] );
+                ymm2_ik_ij = _mm256_mul_pd( ymm0_ii_ik, ymm2_ik_ij );
+                ymm1_ii_ij = _mm256_sub_pd( ymm1_ii_ij, ymm2_ik_ij );
+                _mm256_storeu_pd(&luMatrix[ii][ij], ymm1_ii_ij );
+                //luMatrix[ii][ij] -= luMatrix[ii][ik] * luMatrix[ik][ij];
+            }
+          }
+
       // U part last block
       for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++)
         for (int ik = lBorder(i); ik < ii; ik++)
@@ -69,11 +84,24 @@ void blockLU(Matrix& luMatrix, const int size, const int bs)
 
     //L blocks
     for (int j = i + 1; j < bn; j++) {
+      __m256d ymm0_ij_ii;
+      __m256d ymm1_ij_ik;
+      __m256d ymm2_ik_ii;
       for (int k = 0; k < i; k++)
         for (int ij = lBorder(j), rbj = rBorder(j); ij < rbj; ij++)
           for (int ik = lBorder(k), rbk = rBorder(k); ik < rbk; ik++)
-            for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++)
-              luMatrix[ij][ii] -= luMatrix[ij][ik] * luMatrix[ik][ii];
+          {
+            ymm1_ij_ik = _mm256_broadcast_sd( &luMatrix[ij][ik] );
+            for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii+=4)
+            {
+                ymm0_ij_ii = _mm256_loadu_pd( &luMatrix[ij][ii] );
+                ymm2_ik_ii = _mm256_loadu_pd( &luMatrix[ik][ii] );
+                ymm2_ik_ii = _mm256_mul_pd( ymm2_ik_ii, ymm1_ij_ik );
+                ymm0_ij_ii = _mm256_sub_pd( ymm0_ij_ii, ymm2_ik_ii );
+                _mm256_storeu_pd(&luMatrix[ij][ii], ymm0_ij_ii );
+              //luMatrix[ij][ii] -= luMatrix[ij][ik] * luMatrix[ik][ii];
+            }
+          }
       // L part last block
       for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++) {
         for (int ik = lBorder(i); ik < ii; ik++)

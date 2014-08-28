@@ -43,7 +43,7 @@ int main(){
     float fTimeStart;
     fTimeStart = clock()/(float)CLOCKS_PER_SEC;
 
-    gaussBlockScheme(luMatrix, f, matrixSize, 40);
+    gaussBlockScheme(luMatrix, f, matrixSize, 80);
     cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
     //fTimeStart = clock()/(float)CLOCKS_PER_SEC;
     //gaussScheme(luMatrix, f, matrixSize);

@@ -30,7 +30,7 @@ double AvxVecMul(double* v1, double* v2, int size)
 
 int main(){
 
-    int matrixSize = 2000;
+    int matrixSize = 4000;
     double** luMatrix = new double*[matrixSize];
     for (int i = 0; i < matrixSize; i++)
       luMatrix[i] = new double[matrixSize];
@@ -40,11 +40,12 @@ int main(){
     generateX(x, matrixSize);
     double* f = createEquationValue(luMatrix, x, matrixSize);
 
-    float fTimeStart;
-    fTimeStart = clock()/(float)CLOCKS_PER_SEC;
+    Timer timer;
+    timer.start();
 
-    gaussBlockScheme(luMatrix, f, matrixSize, 80);
-    cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
+    gaussMTBlockScheme(luMatrix, f, matrixSize, 4, 80);
+    timer.stop();
+    cout <<timer.interval()<<endl;
     //fTimeStart = clock()/(float)CLOCKS_PER_SEC;
     //gaussScheme(luMatrix, f, matrixSize);
 

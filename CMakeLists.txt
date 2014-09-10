@@ -8,7 +8,7 @@ project (${PROJECT})
 set(GAUSS ./main.cpp)
 
 if(CMAKE_COMPILER_IS_GNUCC)
-  add_definitions (-Wall -pedantic -std=gnu++11 -O2)
+  add_definitions (-Wall -pedantic -std=gnu++11 -O2 -march="haswell")
 endif()
 
 set (HEADERS 

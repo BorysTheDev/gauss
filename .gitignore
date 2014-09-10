@@ -34,3 +34,4 @@ Makefile
 Debug/
 gauss_scheme.dir/
 
+*.user

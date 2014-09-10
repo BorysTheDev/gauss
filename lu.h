@@ -1,5 +1,5 @@
 #include <functional>
-
+#include <immintrin.h>
 //faster but not determined
 //Matrix size must be >=1
 template<class Matrix>

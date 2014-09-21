@@ -3,6 +3,7 @@
 #include "synchronization.h"
 #include <thread>
 #include <list>
+#include "immintrin.h"
 // faster but not determined
 template<class Matrix>
 class MTBlockLU
@@ -27,6 +28,33 @@ private:
   {
     return ++blockn * bs > size ? size : blockn * bs;
   }
+
+  typedef std::complex<double> cmpx;
+  void mulAndSub(cmpx* to, cmpx* from1, cmpx* from2)
+  {
+      double* v1 = (double*)from1;
+      double* v2 = (double*)from2;
+      __m256d ymm0_v1;
+      __m256d ymm1_v2;
+      __m256d ymm2_axa;
+      __m256d ymm3_perm_v2;
+      __m256d ymm4_axb;
+      __m256d ymm5_bb_xchange_ab;
+      __m256d ymm6_aa_xchange_ab;
+      __m256d ymm7_res;
+      __m256d ymm8_sum = _mm256_setzero_pd();
+      ymm0_v1 = _mm256_loadu_pd(v1);
+      ymm1_v2 = _mm256_loadu_pd(v2);
+      ymm2_axa = _mm256_mul_pd(ymm0_v1, ymm1_v2);
+      ymm3_perm_v2 = _mm256_permute_pd (ymm1_v2, 0b0101);
+      ymm4_axb = _mm256_mul_pd(ymm0_v1, ymm3_perm_v2);
+      ymm5_bb_xchange_ab = _mm256_unpackhi_pd(ymm2_axa, ymm4_axb);
+      ymm6_aa_xchange_ab = _mm256_unpacklo_pd(ymm2_axa, ymm4_axb);
+      ymm7_res = _mm256_addsub_pd(ymm6_aa_xchange_ab, ymm5_bb_xchange_ab);
+      ymm8_sum = _mm256_add_pd(ymm7_res, ymm8_sum);
+      _mm256_storeu_pd((double*)to, ymm8_sum);
+  }
+
   // algorithm
   void taskU();
   void taskL();

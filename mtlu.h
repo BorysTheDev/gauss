@@ -32,8 +32,9 @@ private:
   typedef std::complex<double> cmpx;
   void mulAndSub(cmpx* to, cmpx* from1, cmpx* from2)
   {
-      double* v1 = (double*)from1;
+      __m128d* v1 = (__m128d*)from1;
       double* v2 = (double*)from2;
+      double* v3 = (double*)to;
       __m256d ymm0_v1;
       __m256d ymm1_v2;
       __m256d ymm2_axa;
@@ -42,17 +43,19 @@ private:
       __m256d ymm5_bb_xchange_ab;
       __m256d ymm6_aa_xchange_ab;
       __m256d ymm7_res;
-      __m256d ymm8_sum = _mm256_setzero_pd();
-      ymm0_v1 = _mm256_loadu_pd(v1);
+      ymm0_v1 = _mm256_broadcast_pd(v1);
       ymm1_v2 = _mm256_loadu_pd(v2);
+      //mul
       ymm2_axa = _mm256_mul_pd(ymm0_v1, ymm1_v2);
       ymm3_perm_v2 = _mm256_permute_pd (ymm1_v2, 0b0101);
       ymm4_axb = _mm256_mul_pd(ymm0_v1, ymm3_perm_v2);
       ymm5_bb_xchange_ab = _mm256_unpackhi_pd(ymm2_axa, ymm4_axb);
       ymm6_aa_xchange_ab = _mm256_unpacklo_pd(ymm2_axa, ymm4_axb);
       ymm7_res = _mm256_addsub_pd(ymm6_aa_xchange_ab, ymm5_bb_xchange_ab);
-      ymm8_sum = _mm256_add_pd(ymm7_res, ymm8_sum);
-      _mm256_storeu_pd((double*)to, ymm8_sum);
+      //sub
+      __m256d ymm9_v3 = _mm256_loadu_pd(v3);
+      ymm9_v3 = _mm256_sub_pd(ymm9_v3, ymm7_res);
+      _mm256_storeu_pd((double*)to, ymm9_v3);
   }
 
   // algorithm
@@ -91,8 +94,8 @@ void MTBlockLU<Matrix>::taskU()
       for (int k = 0; k < i; k++)
         for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++)
           for (int ik = lBorder(k), rbk = rBorder(k); ik < rbk; ik++)
-            for (int ij = lBorder(j), rbj = rBorder(j); ij < rbj; ij++)
-              luMatrix[ii][ij] -= luMatrix[ii][ik] * luMatrix[ik][ij];
+            for (int ij = lBorder(j), rbj = rBorder(j); ij < rbj; ij+=2)
+              mulAndSub(&luMatrix[ii][ij], &luMatrix[ii][ik], &luMatrix[ik][ij]);
       // U part last block
       for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++)
         for (int ik = lBorder(i); ik < ii; ik++)
@@ -114,8 +117,8 @@ void MTBlockLU<Matrix>::taskL()
       for (int k = 0; k < i; k++)
         for (int ij = lBorder(j), rbj = rBorder(j); ij < rbj; ij++)
           for (int ik = lBorder(k), rbk = rBorder(k); ik < rbk; ik++)
-            for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++)
-              luMatrix[ij][ii] -= luMatrix[ij][ik] * luMatrix[ik][ii];
+            for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii+=2)
+              mulAndSub(&luMatrix[ij][ii], &luMatrix[ij][ik], &luMatrix[ik][ii]);
       // L part last block
       for (int ii = lBorder(i), rbi = rBorder(i); ii < rbi; ii++) {
         for (int ik = lBorder(i); ik < ii; ik++)
@@ -139,8 +142,8 @@ void MTBlockLU<Matrix>::taskM()
     for (int k = 0; k < j; k++)
       for (int ii = lBorder(j), rbi = rBorder(j); ii < rbi; ii++)
         for (int ik = lBorder(k), rbk = rBorder(k); ik < rbk; ik++)
-          for (int ij = lBorder(j); ij < rbi; ij++)
-            luMatrix[ii][ij] -= luMatrix[ii][ik] * luMatrix[ik][ij];
+          for (int ij = lBorder(j); ij < rbi; ij+=2)
+            mulAndSub(&luMatrix[ii][ij], &luMatrix[ii][ik], &luMatrix[ik][ij]);
     // U and L part last block
     for (int ii = lBorder(j), rbi = rBorder(j); ii < rbi; ii++) {
       for (int ik = lBorder(j); ik < ii; ik++) {

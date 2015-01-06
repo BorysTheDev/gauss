@@ -62,60 +62,60 @@ std::complex<double> VecMul(std::complex<double>* v1, std::complex<double>* v2, 
 //  return 1;
 //}
 
-int main()
-{
-    const int SIZE = 100000000;
-    std::complex<double>* v1 = new std::complex<double>[SIZE];
-    std::complex<double>* v2 = new std::complex<double>[SIZE];
+//int main()
+//{
+//    const int SIZE = 10000000;
+//    std::complex<double>* v1 = new std::complex<double>[SIZE];
+//    std::complex<double>* v2 = new std::complex<double>[SIZE];
 
-    for (int i = 0; i < SIZE; i++)
-    {
-        v1[i] = std::complex<double>(i, i / 3);
-        v2[i] = v1[i] + i / 2.0;
-    }
-    Timer timer;
-    timer.start();
-    std::complex<double> test = VecMul(v1, v2, SIZE);
-    timer.stop();
-    cout << test << " " << timer.interval()<<endl;
-    timer.start();
-    std::complex<double> test1 = AvxVecMul(v1, v2, SIZE);
-    timer.stop();
-    cout << test1 << " " << timer.interval()<<endl;
-    return 0;
-}
-
-//int main(){
-
-//    int matrixSize = 4000;
-//    double** luMatrix = new double*[matrixSize];
-//    for (int i = 0; i < matrixSize; i++)
-//      luMatrix[i] = new double[matrixSize];
-//    generateMatrix(luMatrix, matrixSize);
-
-//    double* x = new double[matrixSize];
-//    generateX(x, matrixSize);
-//    double* f = createEquationValue(luMatrix, x, matrixSize);
-
+//    for (int i = 0; i < SIZE; i++)
+//    {
+//        v1[i] = std::complex<double>(i, i / 3);
+//        v2[i] = v1[i] + i / 2.0;
+//    }
 //    Timer timer;
 //    timer.start();
-
-//    gaussMTBlockScheme(luMatrix, f, matrixSize, 4, 80);
+//    std::complex<double> test = VecMul(v1, v2, SIZE);
 //    timer.stop();
-//    cout <<timer.interval()<<endl;
-//    //fTimeStart = clock()/(float)CLOCKS_PER_SEC;
-//    //gaussScheme(luMatrix, f, matrixSize);
-
-//    //cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
-
-
-//    writeVector("result.txt", f, matrixSize);
-//    //writeMatrix("./gauss/test.txt", luMatrix.data(),matrixSize);
-//    //writeMatrix("./gauss/test1.txt", luMatrix1.data(),matrixSize);
-
-
-//    delete[] x;
-//    delete[] f;
-//    cout << "end";
+//    cout << test << " " << timer.interval()<<endl;
+//    timer.start();
+//    std::complex<double> test1 = AvxVecMul(v1, v2, SIZE);
+//    timer.stop();
+//    cout << test1 << " " << timer.interval()<<endl;
 //    return 0;
 //}
+
+int main(){
+
+    int matrixSize = 8978;
+    std::complex<double>** luMatrix = new  std::complex<double>*[matrixSize];
+    for (int i = 0; i < matrixSize; i++)
+      luMatrix[i] = new  std::complex<double>[matrixSize];
+    generateMatrix(luMatrix, matrixSize);
+
+    std::complex<double>* x = new std::complex<double>[matrixSize];
+    generateX(x, matrixSize);
+     std::complex<double>* f = createEquationValue(luMatrix, x, matrixSize);
+
+    Timer timer;
+    timer.start();
+
+    gaussMTBlockScheme(luMatrix, f, matrixSize, 4, 80);
+    timer.stop();
+    cout <<timer.interval()<<endl;
+    //fTimeStart = clock()/(float)CLOCKS_PER_SEC;
+    //gaussScheme(luMatrix, f, matrixSize);
+
+    //cout <<clock()/(float)CLOCKS_PER_SEC - fTimeStart<<endl;
+
+
+    writeVector("C:\\\\Users\\equal\\Desktop\\tournament-autoregistration\\result.txt", f, matrixSize);
+    //writeMatrix("./gauss/test.txt", luMatrix.data(),matrixSize);
+    //writeMatrix("./gauss/test1.txt", luMatrix1.data(),matrixSize);
+
+
+    delete[] x;
+    delete[] f;
+    cout << "end";
+    return 0;
+}

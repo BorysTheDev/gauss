@@ -8,7 +8,8 @@
 #include <list>
 using namespace std;
 
-void writeVector(string fileName, double* vector, int size) {
+template <class T>
+void writeVector(string fileName,T vector, int size) {
 	ofstream fout(fileName);
 	//fout.setf(ios_base::fixed,ios_base::floatfield);
 	fout <<size<< endl;

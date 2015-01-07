@@ -6,8 +6,8 @@ template<class Matrix>
 void simpleLU(Matrix& luMatrix, const int size)
 {
   for (size_t i = 0; i < size; i++) {
-    for (size_t k = 0; k < i; k++)
-      for (size_t j = i; j < size; j++)
+    for (size_t j = i; j < size; j++)
+      for (size_t k = 0; k < i; k++)
         luMatrix[i][j] -= luMatrix[i][k] * luMatrix[k][j];
 
     for (size_t j = i + 1; j < size; j++) {

@@ -87,7 +87,7 @@ std::complex<double> VecMul(std::complex<double>* v1, std::complex<double>* v2, 
 
 int main(){
 
-    int matrixSize = 8978;
+    int matrixSize = 1731;
     std::complex<double>** luMatrix = new  std::complex<double>*[matrixSize];
     for (int i = 0; i < matrixSize; i++)
       luMatrix[i] = new  std::complex<double>[matrixSize];
@@ -100,7 +100,7 @@ int main(){
     Timer timer;
     timer.start();
 
-    gaussMTBlockScheme(luMatrix, f, matrixSize, 4, 80);
+    gaussScheme(luMatrix, f, matrixSize);
     timer.stop();
     cout <<timer.interval()<<endl;
     //fTimeStart = clock()/(float)CLOCKS_PER_SEC;
